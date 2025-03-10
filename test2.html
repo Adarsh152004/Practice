@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Women's Day Surprise 💖</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: block;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            font-family: 'Arial', sans-serif;
+            overflow-y: auto;
+            transition: filter 0.3s;
+            padding: 0; /* Make space for bottom gallery */
+        }
+
+        .container {
+            position: relative;
+            width: 90%;
+            max-width: 800px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+            margin: 50px auto; /* Reduced margin */
+            min-height: 80vh;
+            z-index: 400; /* Below gallery */
+        }
+
+        .surprise-button {
+            display: block;
+            margin: 20px auto 0; /* Center the button and add margin at the top */
+            padding: 20px 30px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .surprise-button:hover {
+            transform: scale(1.1) rotate(-5deg);
+        }
+
+        /* Enhanced Photo Gallery Styles */
+        .photo-gallery {
+            position: relative;
+            margin-top: 50px;
+            width: 100%;
+            overflow: hidden;
+            margin: 30px 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 300px; /* Increased height */
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(5px);
+            padding: 20px 0;
+            transform: translateY(50px);
+            transition: all 0.5s ease-out;
+            opacity: 0;
+            box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 500;
+        }
+
+        
+        .photo-gallery.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scrolling-photos {
+            display: flex;
+            animation: scroll 60s linear infinite; /* Slowed down from 40s to 60s */
+            height: 100%;
+            perspective: 1000px; /* Add 3D perspective */
+        }
+
+        .photo-item {
+            flex: 0 0 auto;
+            margin: 0 20px; /* Increased margin */
+            height: 100%;
+            transition: all 0.5s;
+            position: relative;
+            transform-style: preserve-3d; /* Enable 3D transforms */
+            animation: rotate 15s infinite alternate; /* Rotate animation */
+            animation-delay: calc(var(--photo-index, 0) * 0.5s); /* Staggered delay */
+        }
+
+        .photo-item:hover {
+            transform: scale(1.1) translateY(-10px) rotateY(10deg); /* Added 3D rotation */
+            z-index: 10;
+        }
+
+        .scrolling-photos img {
+            height: 200px; /* Increased size */
+            width: 260px;
+            object-fit: cover;
+            border-radius: 15px;
+            border: 5px solid white; /* Thicker border */
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); /* Enhanced shadow */
+            transition: all 0.5s;
+            filter: brightness(0.9); /* Slightly dimmed by default */
+        }
+
+        .photo-item:hover img {
+            filter: brightness(1.1); /* Brighten on hover */
+            transform: translateZ(20px); /* 3D pop effect */
+        }
+
+        /* Touch-friendly hover states */
+        @media (hover: hover) {
+            .photo-item:hover {
+                transform: scale(1.1) translateY(-10px) rotateY(10deg);
+            }
+            .photo-item:hover .photo-caption {
+                opacity: 1;
+                bottom: 3px;
+                transform: translateZ(30px); /* 3D effect */
+            }
+        }
+
+        /* Gallery controls */
+        .gallery-controls {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 510;
+        }
+
+        .gallery-button {
+            background: #ff69b4;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .gallery-button:hover {
+            transform: scale(1.1);
+            background: #ff85c2;
+        }
+
+        /* Mobile Responsive Adjustments */
+        @media (max-width: 768px) {
+            .photo-gallery {
+                height: 250px;
+            }
+
+            .scrolling-photos img {
+                height: 160px;
+                width: 200px;
+            }
+
+            .photo-item {
+                margin: 0 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .photo-gallery {
+                height: 200px;
+            }
+
+            .scrolling-photos img {
+                height: 120px;
+                width: 160px;
+            }
+        }
+
+        /* Intersection Observer fallback */
+        .photo-gallery.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .photo-caption {
+            position: absolute;
+            bottom: -30px;
+            left: 0;
+            right: 0;
+            background: rgba(255, 105, 180, 0.8);
+            color: white;
+            padding: 8px; /* Increased padding */
+            border-radius: 0 0 15px 15px;
+            font-size: 14px; /* Increased font size */
+            text-align: center;
+            opacity: 0;
+            transition: all 0.5s;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .photo-item:hover .photo-caption {
+            opacity: 1;
+            bottom: 3px;
+        }
+
+        /* Polaroid effect for some photos */
+        .polaroid {
+            background: white;
+            padding: 10px 10px 30px 10px;
+            transform: rotate(var(--rotation));
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.5s;
+        }
+
+        .photo-item:hover .polaroid {
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .polaroid img {
+            border: 1px solid #ddd;
+            box-shadow: none;
+        }
+
+        .love-messages {
+            position: fixed;
+            top: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            height: 60px;
+            overflow: hidden;
+        }
+
+        .message-slide {
+            animation: slide 15s linear infinite;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 999;
+            z-index: 1000; /* Above gallery */
+        }
+
+        .secret-letter {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            max-width: 500px;
+            width: 90%;
+            z-index: 1001; /* Above overlay */
+        }
+
+        .blur-background {
+            filter: blur(5px);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #ff69b4;
+        }
+
+        .hearts {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .heart {
+            position: absolute;
+            color: #ff69b4;
+            animation: float 3s infinite;
+            opacity: 0;
+            font-size: 28px;
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
+        }
+
+        .rose {
+            text-align: center;
+            font-size: 60px;
+            animation: pulse 2s infinite;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
+        }
+
+        .emoji-effect {
+            font-size: 40px;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.5);
+            animation: float 3s infinite;
+        }
+
+        /* Lightbox for enlarged photo view */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            /* position: relative; */
+        }
+
+        .lightbox-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            border: 5px solid white;
+            border-radius: 10px;
+        }
+
+        .lightbox-close {
+            /* position: absolute; */
+            top: -30px;
+            right: -10px;
+            color: white;
+            font-size: 24px;
+            padding: 5px;
+            cursor: pointer;
+        }
+
+        /* Mobile-first media queries */
+        @media (min-width: 768px) {
+            .container {
+                padding: 30px;
+                margin: 50px auto;
+            }
+            
+            .scrolling-photos img {
+                height: 180px;
+                width: 240px;
+            }
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* New rotating animation */
+        @keyframes rotate {
+            0% { transform: rotateY(0deg); }
+            50% { transform: rotateY(5deg); }
+            100% { transform: rotateY(-5deg); }
+        }
+
+        @keyframes slide {
+            0% { transform: translateY(100%); }
+            20% { transform: translateY(0); }
+            80% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) translateX(0); opacity: 1; }
+            50% { transform: translateY(-20px) translateX(10px); }
+            100% { transform: translateY(-100px) translateX(-10px); opacity: 0; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="container" id="mainContent">
+        <div class="hearts" id="hearts"></div>
+        <h1>Happy Women's Day, My Love! ❤️💐</h1>
+        <div class="rose">🌹</div>
+        <p class="message">
+            To the most amazing girl in my life,<br><br>
+            On this special day, I want to celebrate everything that makes you incredible 💖 Your strength inspires me, your kindness warms my heart, and your love makes every day brighter 🌞 You're not just my partner, but my best friend, my confidant, and my greatest believe 🚀<br><br>
+            Thank you for being my rock 🌟, my sunshine ☀️, and my reason to smile every day 😊. You make the world more beautiful just by being in it 🌸. Today and every day, I celebrate you - the phenomenal woman who stole my heart ❤️<br><br>
+            Forever yours,<br>
+            Krishnu 💘
+        </p>
+        <button class="surprise-button" onclick="showSecretLetter()">🎁 Click for Special Surprise!</button>
+    </div>
+
+
+    <!-- Lightbox for photo view -->
+    <div class="lightbox" id="photoLightbox">
+        <div class="lightbox-content">
+            <span class="lightbox-close" onclick="closeLightbox()">×</span>
+            <img id="lightboxImage" src="" alt="Enlarged photo">
+        </div>
+    </div>
+
+    <div class="love-messages">
+        <div class="message-slide">
+            <h3>💖 You Are My Forever Love 💖</h3>
+            <h3>🌹 Your Smile Lights Up My World 🌹</h3>
+            <h3>🌸 Every Moment With You is Precious 🌸</h3>
+            <h3>💞 My Heart Beats Only For You 💞</h3>
+        </div>
+    </div>
+
+        <!-- Enhanced Photo Gallery -->
+        <div class="photo-gallery" id="photoGallery">
+            <div class="scrolling-photos" id="photoScroll">
+                <!-- First set of photos -->
+                <div class="photo-item" style="--photo-index: 0;">
+                    <img src="IMG_20241005_215504.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    <div class="photo-caption">You are my favorite place to be. ❤️</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 1; --rotation: -5deg;">
+                    <div class="polaroid">
+                        <img src="IMG_20241011_223636.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    </div>
+                    <div class="photo-caption">With you, every moment is a memory💕</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 2;">
+                    <img src="IMG_20241011_230254.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    <div class="photo-caption">Two hearts, one soul. 🌟</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 3; --rotation: 3deg;">
+                    <div class="polaroid">
+                        <img src="IMG-20231221-WA0026.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    </div>
+                    <div class="photo-caption">Our love story captured in frames. 💖</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 4;">
+                    <img src="IMG-20240614-WA0020 - Copy.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    <div class="photo-caption">You are the sunshine that lights up my world. 🌅</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 5; --rotation: -2deg;">
+                    <div class="polaroid">
+                        <img src="IMG-20240720-WA0017 - Copy (6).jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    </div>
+                    <div class="photo-caption">Forever and always, my heart belongs to you🌞</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 6;">
+                    <img src="IMG-20241004-WA0019.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    <div class="photo-caption">The best thing to hold onto in life is each other.</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 7;">
+                    <img src="IMG-20241004-WA0058.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    <div class="photo-caption">Every picture tells a story, ours is my favorite. ✨</div>
+                </div>
+    
+                <!-- Clone for infinite loop -->
+                <div class="photo-item" style="--photo-index: 8;">
+                    <img src="IMG-20241004-WA0123.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    <div class="photo-caption">You are my happily ever after❤️</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 9; --rotation: -5deg;">
+                    <div class="polaroid">
+                        <img src="IMG-20241004-WA0126.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    </div>
+                    <div class="photo-caption">Love like ours is timeless💕</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 10;">
+                    <img src="Snapchat-1167565277.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    <div class="photo-caption">You are my today and all of my tomorrows 🌟</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 11; --rotation: 3deg;">
+                    <div class="polaroid">
+                        <img src="Snapchat-1296318023.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    </div>
+                    <div class="photo-caption">Special Moments 💖</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 12;">
+                    <img src="Snapchat-1321429648.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    <div class="photo-caption">Life is better with you by my side. 🌅</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 13; --rotation: -2deg;">
+                    <div class="polaroid">
+                        <img src="Snapchat-1569051575.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    </div>
+                    <div class="photo-caption">A love that feels like home🌞</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 14;">
+                    <img src="Snapchat-1694106750.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    <div class="photo-caption">Our love is a beautiful journey.</div>
+                </div>
+                <div class="photo-item" style="--photo-index: 15;">
+                    <img src="Snapchat-1910825741.jpg" alt="Our Memory" onclick="openLightbox(this.src)">
+                    <div class="photo-caption">You and me, a perfect match. ✨</div>
+                </div>
+            </div>
+            
+            <!-- Added gallery controls at the bottom -->
+            <div class="gallery-controls">
+                <button class="gallery-button" onclick="pauseGallery()">❚❚ Pause</button>
+                <button class="gallery-button" onclick="resumeGallery()">► Play</button>
+            </div>
+        </div>
+
+
+    <div class="secret-letter" id="secretLetter">
+        <span class="close-btn" onclick="closeLetter()">×</span>
+        <h2>Surprise My Love! 💌</h2>
+        <p>
+            <span class="emoji-effect">🌸</span> Every moment with you feels like a blessing wrapped in stardust ✨<br><br>
+            <span class="emoji-effect">💝</span> You're the missing puzzle piece I never knew I needed 🧩<br><br>
+            <span class="emoji-effect">🌷</span> Thank you for being my partner in crime 🦸♀️<br><br>
+            Forever & Always,<br>
+            Muko🐶 <span class="emoji-effect">🐾💞</span>
+        </p>
+        <div style="text-align: center;">
+            <span class="emoji-effect">💐</span>
+            <span class="emoji-effect">🌹</span>
+            <span class="emoji-effect">💌</span>
+            <span class="emoji-effect">🎀</span>
+            <span class="emoji-effect">💋</span>
+        </div>
+    </div>
+
+    <audio id="backgroundMusic" src="romantic_music.mp3" loop></audio>
+
+    <script>
+        // Heart animation
+        function createHearts() {
+            const hearts = document.getElementById('hearts');
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'heart';
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.animationDelay = Math.random() * 2 + 's';
+                heart.innerHTML = '❤️';
+                hearts.appendChild(heart);
+            }
+        }
+
+        function handleScrollAnimation() {
+            const gallery = document.getElementById('photoGallery');
+            const galleryTop = gallery.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+
+            if (galleryTop < windowHeight * 0.8) {
+                gallery.classList.add('active');
+                resumeGallery(); // Start animation
+            }
+        }
+        
+        // Update initialization
+        window.addEventListener('scroll', handleScrollAnimation);
+        handleScrollAnimation(); // Initial check
+
+        // Surprise letter functions
+        function showSecretLetter() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('secretLetter').style.display = 'block';
+            document.getElementById('backgroundMusic').play();
+            createEnhancedEmojiRain();
+            burstConfetti();
+        }
+
+        function closeLetter() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('secretLetter').style.display = 'none';
+            document.getElementById('backgroundMusic').pause();
+        }
+
+        // Confetti effect
+        function burstConfetti() {
+            confetti({
+                particleCount: 200,
+                spread: 120,
+                origin: { y: 0.6 },
+                colors: ['#ff69b4', '#ff85c2', '#ffa6c9'],
+                scalar: 1.2
+            });
+        }
+
+        // Enhanced emoji rain
+        function createEnhancedEmojiRain() {
+            const emojis = ['🌸', '💖', '🌺', '💌', '🎀', '💐', '🌹', '💋'];
+            const container = document.body;
+            
+            for (let i = 0; i < 80; i++) {
+                const emoji = document.createElement('div');
+                emoji.style.position = 'fixed';
+                emoji.style.left = Math.random() * 100 + '%';
+                emoji.style.top = -30 + 'px';
+                emoji.style.fontSize = Math.random() * 35 + 35 + 'px';
+                emoji.style.animationDuration = Math.random() * 3 + 2 + 's';
+                emoji.style.animationName = 'float';
+                emoji.style.animationTimingFunction = 'linear';
+                emoji.style.opacity = '0.9';
+                emoji.style.zIndex = '1002';
+                emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                container.appendChild(emoji);
+
+                setTimeout(() => emoji.remove(), 5000);
+            }
+        }
+
+        // Photo gallery functions
+        let isGalleryPaused = false;
+        const photoScroll = document.getElementById('photoScroll');
+        let savedAnimationState;
+
+        function pauseGallery() {
+            if (!isGalleryPaused) {
+                savedAnimationState = photoScroll.style.animationPlayState || 'running';
+                photoScroll.style.animationPlayState = 'paused';
+                isGalleryPaused = true;
+            }
+        }
+
+        function resumeGallery() {
+            if (isGalleryPaused) {
+                photoScroll.style.animationPlayState = savedAnimationState;
+                isGalleryPaused = false;
+            }
+        }
+
+        // Add this JavaScript to handle dynamic duplication
+        function duplicatePhotosForSeamlessScroll() {
+            const scrollContainer = document.getElementById('photoScroll');
+            const photos = scrollContainer.innerHTML;
+            scrollContainer.innerHTML = photos + photos;
+            
+            // Set appropriate width for scrolling container
+            const photoItems = document.querySelectorAll('.photo-item');
+            const containerWidth = photoItems.length * 300; // Adjust based on your item width
+            scrollContainer.style.width = `${containerWidth}px`;
+            
+            // Set individual delays for each photo item
+            photoItems.forEach((item, index) => {
+                item.style.setProperty('--photo-index', index % 16); // Use modulo to keep in range of original items
+            });
+        }
+        
+        // Call the duplication function on load
+        window.addEventListener('load', () => {
+            duplicatePhotosForSeamlessScroll();
+            
+            // Initialize gallery animation
+            const scrollContainer = document.getElementById('photoScroll');
+            scrollContainer.style.animation = 'scroll 60s linear infinite'; // Slower speed
+        });
+
+        // Lightbox functions
+        function openLightbox(src) {
+            const lightbox = document.getElementById('photoLightbox');
+            const lightboxImg = document.getElementById('lightboxImage');
+            lightboxImg.src = src;
+            lightbox.style.display = 'flex';
+            document.body.classList.add('blur-background');
+            pauseGallery();
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('photoLightbox');
+            lightbox.style.display = 'none';
+            document.body.classList.remove('blur-background');
+            resumeGallery();
+        }
+
+        // Photo gallery visibility based on scroll position
+        function togglePhotoGallery() {
+            const mainContent = document.getElementById('mainContent');
+            const photoGallery = document.getElementById('photoGallery');
+            const mainContentBottom = mainContent.getBoundingClientRect().bottom;
+            const windowHeight = window.innerHeight;
+
+            if (mainContentBottom <= windowHeight) {
+                photoGallery.style.display = 'block';
+            } else {
+                photoGallery.style.display = 'none';
+            }
+        }
+
+        // Add event listener for scroll event
+        window.addEventListener('scroll', togglePhotoGallery);
+
+        // Initial check
+        togglePhotoGallery();
+
+        // Initial setup
+        createHearts();
+        setInterval(createHearts, 3000);
+
+        // Add hover effect to photo items
+        const photoItems = document.querySelectorAll('.photo-item');
+        photoItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.zIndex = '10';
+            });
+            item.addEventListener('mouseleave', function() {
+                this.style.zIndex = '1';
+            });
+        });
+    </script>
+</body>
+</html>
